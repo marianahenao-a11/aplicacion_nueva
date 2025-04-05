@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack - Tu App de Ejercicios</title>
+    <style>
+        /* Variables globales */
+        :root {
+            --primary-color: #ff4e8a;
+            --secondary-color: #d43770;
+            --accent-color: #ff8ab4;
+            --text-color: #333;
+            --text-light: #fff;
+            --background-color: #f5f5f5;
+            --card-bg: #fff;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --spacing: 20px;
+        }
+
+        /* Modo oscuro */
+        body.dark-mode {
+            --primary-color: #434343;
+            --secondary-color: #222222;
+            --accent-color: #666666;
+            --text-color: #eee;
+            --text-light: #fff;
+            --background-color: #121212;
+            --card-bg: #1e1e1e;
+        }
+
+        /* Modo rosado */
+        body.pink-mode {
+            --primary-color: #ff4e8a;
+            --secondary-color: #d43770;
+            --accent-color: #ff8ab4;
+            --text-color: #333;
+            --text-light: #fff;
+            --background-color: #fff0f5;
+            --card-bg: #fff;
+        }
+
+        /* Estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        h1, h2, h3, h4 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 78, 138, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: var(--spacing);
+            transition: var(--transition);
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .theme-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--text-light);
+            border-radius: 20px;
+            padding: 5px 10px;
+            color: var(--text-light);
+        }
+
+        .main-content {
+            padding: var(--spacing) 0;
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .section-title {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Formulario de registro */
+        .registration-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-option input {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .checkbox-option input {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        /* Biblioteca de ejercicios */
+        .exercise-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .exercise-card {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            background-color: var(--card-bg);
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .exercise-image {
+            height: 200px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exercise-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .exercise-info {
+            padding: 15px;
+        }
+
+        .exercise-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: var(--accent-color);
+            color: var(--text-light);
+            padding: 3px 8px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Mi rutina */
+        .routine-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .day-card {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .workout-list {
+            list-style: none;
+        }
+
+        .workout-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(200, 200, 200, 0.3);
+        }
+
+        /* Temporizador */
+        .timer-container {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .timer-display {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .timer-control {
+            padding: 12px 24px;
+            font-size: 18px;
+        }
+
+        /* Exercise Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+        }
+
+        .exercise-detail {
+            padding: 20px;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .video-container iframe, .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .exercise-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timer-display {
+                font-size: 48px;
+            }
+        }
+
+        /* Clases de utilidad */
+        .hidden {
+            display: none;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .add-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="pink-mode">
+    <header class="header">
+        <div class="container header-content">
+            <a href="#" class="logo">FitTrack</a>
+            <nav class="nav-links">
+                <a href="#" class="nav-link active" data-page="profile">Mi Perfil</a>
+                <a href="#" class="nav-link" data-page="exercises">Ejercicios</a>
+                <a href="#" class="nav-link" data-page="routines">Mi Rutina</a>
+                <a href="#" class="nav-link" data-page="timer">Temporizador</a>
+            </nav>
+            <div class="theme-controls">
+                <button class="theme-toggle" id="dark-mode-toggle">Modo Oscuro</button>
+                <button class="theme-toggle" id="pink-mode-toggle">Modo Rosa</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Perfil -->
+    <div id="profile" class="main-content active">
+        <div class="container">
+            <h2 class="section-title">Mi Perfil</h2>
+            <div id="profile-success" class="success-message">
+                ¡Perfil guardado correctamente! Hemos generado una rutina personalizada para ti.
+            </div>
+            <div class="card registration-form">
+                <div class="tabs">
+                    <div class="tab active" data-tab="personal-info">Información Personal</div>
+                    <div class="tab" data-tab="fitness-level">Nivel de Condición</div>
+                    <div class="tab" data-tab="goals">Objetivos</div>
+                    <div class="tab" data-tab="limitations">Limitaciones</div>
+                </div>
+
+                <!-- Información Personal -->
+                <div class="tab-content active" id="personal-info">
+                    <h3>Información Personal</h3>
+                    <div class="form-group">
+                        <label for="name">Nombre</label>
+                        <input type="text" id="name" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Edad</label>
+                        <input type="number" id="age" placeholder="Tu edad">
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Altura (cm)</label>
+                        <input type="number" id="height" placeholder="Tu altura en centímetros">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Peso (kg)</label>
+                        <input type="number" id="weight" placeholder="Tu peso en kilogramos">
+                    </div>
+                    <div class="form-group">
+                        <label>Género</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="male" name="gender" value="male">
+                                <label for="male">Masculino</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="female" name="gender" value="female">
+                                <label for="female">Femenino</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="other" name="gender" value="other">
+                                <label for="other">Otro</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary next-tab" data-next="fitness-level">Siguiente</button>
+                </div>
+
+                <!-- Nivel de Condición Física -->
+                <div class="tab-content" id="fitness-level">
+                    <h3>Nivel de Condición Física</h3>
+                    <div class="form-group">
+                        <label for="fitness-level-select">¿Cuál es tu nivel de experiencia en ejercicios?</label>
+                        <select id="fitness-level-select">
+                            <option value="beginner">Principiante - Poco o ningún entrenamiento previo</option>
+                            <option value="intermediate">Intermedio - Entreno regularmente desde hace meses</option>
+                            <option value="advanced">Avanzado - Entreno consistentemente por años</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Cuántas veces entrenas por semana actualmente?</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="freq-0" name="training-frequency" value="0">
+                                <label for="freq-0">No entreno</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freq-1-2" name="training-frequency" value="1-2">
+                                <label for="freq-1-2">1-2 veces</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freq-3-4" name="training-frequency" value="3-4">
+                                <label for="freq-3-4">3-4 veces</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freq-5+" name="training-frequency" value="5+">
+                                <label for="freq-5+">5+ veces</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Puedes hacer las siguientes actividades?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="pushup" name="can-do" value="pushup">
+                                <label for="pushup">10 flexiones de brazos seguidas</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="pullup" name="can-do" value="pullup">
+                                <label for="pullup">5 dominadas seguidas</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="run" name="can-do" value="run">
+                                <label for="run">Correr 2km sin parar</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="squat" name="can-do" value="squat">
+                                <label for="squat">20 sentadillas seguidas</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-20">
+                        <button class="btn-secondary prev-tab" data-prev="personal-info">Anterior</button>
+                        <button class="btn-primary next-tab" data-next="goals">Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- Objetivos -->
+                <div class="tab-content" id="goals">
+                    <h3>Tus Objetivos</h3>
+                    <div class="form-group">
+                        <label for="primary-goal">¿Cuál es tu objetivo principal?</label>
+                        <select id="primary-goal">
+                            <option value="weight-loss">Pérdida de peso</option>
+                            <option value="muscle-gain">Ganancia muscular</option>
+                            <option value="toning">Tonificación</option>
+                            <option value="endurance">Mejorar resistencia</option>
+                            <option value="strength">Aumentar fuerza</option>
+                            <option value="flexibility">Mejorar flexibilidad</option>
+                            <option value="overall-health">Mejorar salud general</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Qué grupos musculares te gustaría priorizar?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="arms" name="muscle-focus" value="arms">
+                                <label for="arms">Brazos</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="chest" name="muscle-focus" value="chest">
+                                <label for="chest">Pecho</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="back" name="muscle-focus" value="back">
+                                <label for="back">Espalda</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="legs" name="muscle-focus" value="legs">
+                                <label for="legs">Piernas</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="core" name="muscle-focus" value="core">
+                                <label for="core">Core (abdomen)</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="glutes" name="muscle-focus" value="glutes">
+                                <label for="glutes">Glúteos</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="training-days">¿Cuántos días a la semana quieres entrenar?</label>
+                        <select id="training-days">
+                            <option value="2">2 días</option>
+                            <option value="3">3 días</option>
+                            <option value="4">4 días</option>
+                            <option value="5">5 días</option>
+                            <option value="6">6 días</option>
+                            <option value="7">7 días</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-between mt-20">
+                        <button class="btn-secondary prev-tab" data-prev="fitness-level">Anterior</button>
+                        <button class="btn-primary next-tab" data-next="limitations">Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- Limitaciones -->
+                <div class="tab-content" id="limitations">
+                    <h3>Limitaciones o Lesiones</h3>
+                    <div class="form-group">
+                        <label>¿Tienes alguna lesión o limitación física?</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="has-limitations-yes" name="has-limitations" value="yes">
+                                <label for="has-limitations-yes">Sí</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="has-limitations-no" name="has-limitations" value="no">
+                                <label for="has-limitations-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="limitations-detail-group">
+                        <label>Marca las áreas afectadas:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-knee" name="limitations" value="knee">
+                                <label for="limit-knee">Rodillas</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-back" name="limitations" value="back">
+                                <label for="limit-back">Espalda baja</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-shoulder" name="limitations" value="shoulder">
+                                <label for="limit-shoulder">Hombros</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-wrist" name="limitations" value="wrist">
+                                <label for="limit-wrist">Muñecas</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-ankle" name="limitations" value="ankle">
+                                <label for="limit-ankle">Tobillos</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="limit-neck" name="limitations" value="neck">
+                                <label for="limit-neck">Cuello</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="limitations-notes">Describe cualquier lesión o limitación con más detalle:</label>
+                        <textarea id="limitations-notes" rows="4" placeholder="Por ejemplo: Tengo una lesión de rodilla por lo que no puedo hacer sentadillas profundas..."></textarea>
+                    </div>
+                    <div class="flex justify-between mt-20">
+                        <button class="btn-secondary prev-tab" data-prev="goals">Anterior</button>
+                        <button class="btn-primary" id="save-profile">Guardar Perfil</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ejercicios -->
+    <div id="exercises" class="main-content">
+        <div class="container">
+            <h2 class="section-title">Biblioteca de Ejercicios</h2>
+            <div class="card">
+                <div class="exercise-filters">
+                    <div class="filter-item">
+                        <label for="muscle-group">Grupo Muscular</label>
+                        <select id="muscle-group">
+                            <option value="all">Todos</option>
+                            <option value="chest">Pecho</option>
+                            <option value="back">Espalda</option>
+                            <option value="legs">Piernas</option>
+                            <option value="shoulders">Hombros</option>
+                            <option value="arms">Brazos</option>
+                            <option value="core">Core</option>
+                            <option value="glutes">Glúteos</option>
+                            <option value="cardio">Cardio</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="difficulty">Dificultad</label>
+                        <select id="difficulty">
+                            <option value="all">Todos</option>
+                            <option value="beginner">Principiante</option>
+                            <option value="intermediate">Intermedio</option>
+                            <option value="advanced">Avanzado</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="equipment">Equipamiento</label>
+                        <select id="equipment">
+                            <option value="all">Todos</option>
+                            <option value="none">Sin equipamiento</option>
+                            <option value="dumbbells">Mancuernas</option>
+                            <option value="barbell">Barra</option>
+                            <option value="kettlebell">Pesa rusa</option>
+                            <option value="resistance-bands">Bandas elásticas</option>
+                            <option value="machine">Máquinas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="exercise-grid" id="exercise-container">
+                    <!-- Los ejercicios se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mi Rutina -->
+    <div id="routines" class="main-content">
+        <div class="container">
+            <div class="flex justify-between items-center">
+                <h2 class="section-title">Mi Rutina</h2>
+                <div>
+                    <button id="create-routine" class="btn-primary">Crear Rutina</button>
+                    <button id="use-template" class="btn-secondary">Usar Plantilla</button>
+                </div>
+            </div>
+            <div class="routine-container" id="routine-container">
+                <!-- Rutinas se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Temporizador -->
+    <div id="timer" class="main-content">
+        <div class="container">
+            <h2 class="section-title">Temporizador de Entrenamiento</h2>
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" data-tab="stopwatch">Cronómetro</div>
+                    <div class="tab" data-tab="countdown">Cuenta Atrás</div>
+                    <div class="tab" data-tab="interval">Intervalos</div>
+                </div>
+                
+                <!-- Cronómetro -->
+                <div class="tab-content active" id="stopwatch">
+                    <div class="timer-container">
+                        <div class="timer-display" id="stopwatch-display"></div>
+                    </div>
+                </div>
+
+                <!-- Cuenta Atrás -->
+                <div class="tab-content" id="countdown">
+                    <div class="timer-container">
+                        <div class="timer-display" id="countdown-display"></div>
+                    </div>
+                </div>
+
+                <!-- Intervalos -->
+                <div class="tab-content" id="interval">
+                    <div class="timer-container">
+                        <div class="timer-display" id="interval-display"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const exerciseButton = document.querySelector('.nav-link[data-page="exercises"]');
+            const exerciseContainer = document.getElementById('exercise-container');
+    
+            exerciseButton.addEventListener('click', () => {
+                exerciseContainer.innerHTML = `
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Press con mancuernas en banco inclinado</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Dominadas</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Curl de bíceps con mancuernas en banco inclinado</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Extensión de tríceps con mancuernas en banco inclinado</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Sentadilla con barra</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Peso muerto rumano</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Sentadillas búlgaras con mancuernas</h3>
+                        </div>
+                    </div>
+                    <div class="exercise-card">
+                        <div class="exercise-info">
+                            <h3>Elevación de talones</h3>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+// Al final de tu script existente, añade este código:
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ... tu código existente ...
+
+    // Guardar perfil
+    document.getElementById('save-profile').addEventListener('click', function() {
+        const profileData = {
+            personalInfo: {
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                gender: document.querySelector('input[name="gender"]:checked')?.value
+            },
+            fitnessLevel: {
+                level: document.getElementById('fitness-level-select').value,
+                frequency: document.querySelector('input[name="training-frequency"]:checked')?.value,
+                canDo: Array.from(document.querySelectorAll('input[name="can-do"]:checked')).map(el => el.value)
+            },
+            goals: {
+                primaryGoal: document.getElementById('primary-goal').value,
+                muscleFocus: Array.from(document.querySelectorAll('input[name="muscle-focus"]:checked')).map(el => el.value),
+                trainingDays: document.getElementById('training-days').value
+            },
+            limitations: {
+                hasLimitations: document.querySelector('input[name="has-limitations"]:checked')?.value,
+                limitations: Array.from(document.querySelectorAll('input[name="limitations"]:checked')).map(el => el.value),
+                notes: document.getElementById('limitations-notes').value
+            }
+        };
+
+        // Guardar en localStorage
+        localStorage.setItem('fitTrackProfile', JSON.stringify(profileData));
+        
+        // Mostrar mensaje de éxito
+        document.getElementById('profile-success').style.display = 'block';
+        
+        // Ocultar mensaje después de 3 segundos
+        setTimeout(() => {
+            document.getElementById('profile-success').style.display = 'none';
+        }, 3000);
+    });
+
+    // Cargar datos guardados al abrir la página
+    function loadProfile() {
+        const savedProfile = localStorage.getItem('fitTrackProfile');
+        if (savedProfile) {
+            const profileData = JSON.parse(savedProfile);
+            
+            // Rellenar formulario con datos guardados
+            if (profileData.personalInfo) {
+                document.getElementById('name').value = profileData.personalInfo.name || '';
+                document.getElementById('age').value = profileData.personalInfo.age || '';
+                document.getElementById('height').value = profileData.personalInfo.height || '';
+                document.getElementById('weight').value = profileData.personalInfo.weight || '';
+                if (profileData.personalInfo.gender) {
+                    document.getElementById(profileData.personalInfo.gender).checked = true;
+                }
+            }
+            
+            // ... puedes continuar con los demás campos ...
+        }
+    }
+
+    // Llamar a loadProfile cuando la página se carga
+    loadProfile();
+});
+
+// Abrir o crear la base de datos
+const request = indexedDB.open('FitTrackDB', 1);
+
+request.onupgradeneeded = (event) => {
+    const db = event.target.result;
+    if (!db.objectStoreNames.contains('profiles')) {
+        db.createObjectStore('profiles', { keyPath: 'id' });
+    }
+    if (!db.objectStoreNames.contains('exercises')) {
+        db.createObjectStore('exercises', { keyPath: 'id' });
+    }
+};
+
+request.onsuccess = (event) => {
+    const db = event.target.result;
+    
+    // Guardar perfil
+    document.getElementById('save-profile').addEventListener('click', function() {
+        const transaction = db.transaction(['profiles'], 'readwrite');
+        const store = transaction.objectStore('profiles');
+        
+        const profileData = {
+            id: 1, // ID único
+            // ... recopilar datos como en el ejemplo anterior ...
+        };
+        
+        store.put(profileData);
+    });
+    
+    // Cargar perfil
+    function loadProfile() {
+        const transaction = db.transaction(['profiles'], 'readonly');
+        const store = transaction.objectStore('profiles');
+        const request = store.get(1);
+        
+        request.onsuccess = (event) => {
+            const profileData = event.target.result;
+            if (profileData) {
+                // Rellenar formulario con los datos
+            }
+        };
+    }
+    
+    loadProfile();
+};
+
+// Configuración inicial (debes incluir el SDK de Firebase)
+const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    databaseURL: "https://TU_PROYECTO.firebaseio.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Guardar perfil
+document.getElementById('save-profile').addEventListener('click', function() {
+    const profileData = {
+        // ... recopilar datos como antes ...
+    };
+    
+    db.collection('profiles').doc('usuario_actual').set(profileData)
+        .then(() => {
+            console.log("Perfil guardado!");
+        });
+});
+
+// Cargar perfil
+function loadProfile() {
+    db.collection('profiles').doc('usuario_actual').get()
+        .then((doc) => {
+            if (doc.exists) {
+                const profileData = doc.data();
+                // Rellenar formulario
+            }
+        });
+}
